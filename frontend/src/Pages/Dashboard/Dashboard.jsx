@@ -51,12 +51,6 @@ const Dashboard = () => {
     const [chartData, setChartData] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
-    const [selectedRange, setSelectedRange] = useState({
-        startIndex: 1,
-        endIndex: 20
-    });
-    const [zoomDialogOpen, setZoomDialogOpen] = useState(false);
-    const timerRef = useRef(null);
     
 
     const handleLogout = () => {
@@ -79,7 +73,6 @@ const Dashboard = () => {
               }
             });
             console.log(response.data)
-            setChartData(response.data);
           } catch (err) {
             if (err.response?.status === 401 || err.response?.status === 403) {
               localStorage.removeItem('jwtToken');
@@ -95,43 +88,7 @@ const Dashboard = () => {
   
         fetchData();
     }, [navigate]);
-
-    const handleBrushChange = useCallback((e) => {
-        if (e.startIndex === undefined || e.endIndex === undefined) return;
-        
-        // Очищаем предыдущий таймер
-        if (timerRef.current) {
-          clearTimeout(timerRef.current);
-        }
-
-        console.log('1')
     
-        // Устанавливаем новый таймер
-        timerRef.current = setTimeout(() => {
-          setSelectedRange({
-            startIndex: e.startIndex,
-            endIndex: e.endIndex,           
-          });
-        }, 500);
-    }, []);
-
-    useEffect(() => {
-        return () => {
-          if (timerRef.current) {
-            clearTimeout(timerRef.current);
-          }
-        };
-    }, []);
-    
-    const handleZoomClick = () => {
-      setZoomDialogOpen(true);
-    };
-
-    const getFilteredData = () => {
-      if (!selectedRange || !chartData) return chartData;
-      return chartData.slice(selectedRange.startIndex, selectedRange.endIndex + 1);
-    };
-
     if (loading) return <CircularProgress sx={{ mt: 4 }} />;
     if (error) return <Alert severity="error">{error}</Alert>;
 
@@ -186,47 +143,12 @@ const Dashboard = () => {
             Аналитика взаимодействий
           </Typography>
    
-          <Box sx={{ height: '500px', mt: 3 }}>
-            <ResponsiveContainer width="100%" height="100%">
-            <LineChart data={chartData}
-            margin={{ 
-                bottom: 0 // Увеличиваем нижний отступ для места под Brush и подпись
-              }}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#555" />
-              <XAxis 
-                dataKey="comments" 
-                stroke="#90caf9"
-                tick={{ textAnchor: 'end', fontSize: 12 }}
-                label={{value: 'Комментарии', dy: -30}}
-                interval={30}
-              />
-              <YAxis 
-                dataKey="likes"
-                stroke="#90caf9"
-                height={100}
-                tick={{ fill: '#90caf9' }}
-                label={{value: 'Лайки', angle: -90, position: 'insideLeft' }}
-              />
-              <Tooltip
-                contentStyle={{
-                  backgroundColor: '#1e1e1e',
-                  border: '1px solid #333',
-                  color: '#fff'
-                }}
-              />
-
-              <Line type="monotone"
-                    dataKey="likes"
-                    strokeWidth={0} 
-                    dot={{
-                      fill: "#90caf9",
-                      r: 3,               // Размер точек
-                      strokeWidth: 0      // Убираем обводку точек
-                    }}
-              />
-            </LineChart>
-            </ResponsiveContainer>
-
+          <Box sx={{ height: '500px', 
+                     mt: 3,         
+                     display: 'flex',
+                     justifyContent: 'center',
+                     alignItems: 'center', }}>
+            <img src="/plot.png" alt="Plot" style={{ maxHeight: '100%', maxWidth: '100%'}} />
           </Box>
    
           <Typography 
